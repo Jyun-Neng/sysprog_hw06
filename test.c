@@ -4,11 +4,15 @@
 #include <string.h>
 #include <time.h>
 
+#include "de_brujin_clz.h"
 #include "parity.h"
 
 #define REPEAT 20
-#define INIT_VAL 1000000
-#define END_VAL 1000020
+#define INIT_VAL 1000
+#define END_VAL 1020
+
+uint32_t x;
+double tm;
 
 double tvgetf()
 {
@@ -28,8 +32,6 @@ void parityTest()
         printf("Error opening file!\n");
         exit(1);
     }
-    uint32_t x;
-    double tm;
     int parity_bit;
 
     for (int i = 0; i < REPEAT; i++) {
@@ -44,6 +46,27 @@ void parityTest()
     fclose(file1);
 }
 
+void debrujinClzTest()
+{
+    FILE *file = fopen("de_brujin_clz_heatmap.txt", "w");
+    if (file == NULL) {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+    int seq;
+
+    for (int i = 0; i < REPEAT; i++) {
+        for (int j = INIT_VAL; j < END_VAL; j++) {
+            x = (uint32_t) j;
+            tm = tvgetf();
+            seq = debrujinClz(x);
+            tm -= tvgetf();
+            fprintf(file, "%d %d %f\n", i, j, -tm);
+        }
+    }
+    fclose(file);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc == 1) {
@@ -53,6 +76,9 @@ int main(int argc, char *argv[])
     switch (*argv[1]) {
     case '1':
         parityTest();
+        break;
+    case '2':
+        debrujinClzTest();
         break;
     default:
         printf("no test\n");
